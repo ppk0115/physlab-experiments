@@ -1,0 +1,8 @@
+interface:
+
+  display_name: "PhysLab 物理题自动建模"
+
+  short_description: "从文字或带图物理题提取条件，通过本地接口自动搭建、运行并检查 PhysLab 实验"
+
+  default_prompt: "使用 $physlab-experiments 根据我提供的物理题文字或图片，在 PhysLab 中搭建并验证可运行的实验。"
+

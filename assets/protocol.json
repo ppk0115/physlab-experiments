@@ -1,0 +1,2621 @@
+{
+  "protocolVersion": 1,
+  "sceneSchemaVersion": 12,
+  "units": "SI; angle in degrees unless stated",
+  "commands": [
+    {
+      "name": "status",
+      "description": "读取当前实验、编辑/运行状态、场景 revision、连接状态与输出目录。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "catalog.list",
+      "description": "查询真实器材类型、中文名称和领域。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "catalog.describe",
+      "description": "查询指定器材的参数单位、默认值、范围和连接方法。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "types": {
+            "minItems": 1,
+            "maxItems": 60,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            }
+          }
+        },
+        "required": [
+          "types"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "scene.get",
+      "description": "读取可保存的初始场景及题目信息。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "scene.validate",
+      "description": "校验简洁建模格式，返回计算后的坐标、连接及警告，不改变当前实验。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "spec": {
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "number",
+                "const": 1
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "gravity": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  }
+                ]
+              },
+              "world": {
+                "type": "object",
+                "properties": {
+                  "ballRestitution": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "trackRestitution": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "objects": {
+                "default": [],
+                "maxItems": 200,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "at": {
+                      "anyOf": [
+                        {
+                          "type": "array",
+                          "prefixItems": [
+                            {
+                              "anyOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 80
+                                }
+                              ]
+                            },
+                            {
+                              "anyOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 80
+                                }
+                              ]
+                            }
+                          ],
+                          "items": false,
+                          "minItems": 2,
+                          "maxItems": 2
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "x": {
+                              "anyOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 80
+                                }
+                              ]
+                            },
+                            "y": {
+                              "anyOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 80
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "x",
+                            "y"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "angle": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 80
+                        }
+                      ]
+                    },
+                    "velocity": {
+                      "anyOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "type": "array",
+                              "prefixItems": [
+                                {
+                                  "anyOf": [
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 80
+                                    }
+                                  ]
+                                },
+                                {
+                                  "anyOf": [
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 80
+                                    }
+                                  ]
+                                }
+                              ],
+                              "items": false,
+                              "minItems": 2,
+                              "maxItems": 2
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "x": {
+                                  "anyOf": [
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 80
+                                    }
+                                  ]
+                                },
+                                "y": {
+                                  "anyOf": [
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 80
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "x",
+                                "y"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "speed": {
+                              "anyOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 80
+                                }
+                              ]
+                            },
+                            "direction": {
+                              "anyOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 80
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "speed",
+                            "direction"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "params": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "anyOf": [
+                          {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 80
+                              }
+                            ]
+                          },
+                          {
+                            "type": "boolean"
+                          }
+                        ]
+                      }
+                    },
+                    "placeOn": {
+                      "type": "object",
+                      "properties": {
+                        "track": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        "along": {
+                          "anyOf": [
+                            {
+                              "anyOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 80
+                                }
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "fraction": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 1
+                                }
+                              },
+                              "required": [
+                                "fraction"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        "side": {
+                          "default": "left",
+                          "type": "string",
+                          "enum": [
+                            "left",
+                            "right"
+                          ]
+                        },
+                        "align": {
+                          "default": true,
+                          "type": "boolean"
+                        },
+                        "gap": {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 80
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "track",
+                        "side",
+                        "align"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "a": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100
+                            },
+                            "local": {
+                              "anyOf": [
+                                {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  ],
+                                  "items": false,
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "x": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    "y": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "x",
+                                    "y"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "object"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "world": {
+                              "anyOf": [
+                                {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  ],
+                                  "items": false,
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "x": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    "y": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "x",
+                                    "y"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "world"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "b": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100
+                            },
+                            "local": {
+                              "anyOf": [
+                                {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  ],
+                                  "items": false,
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "x": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    "y": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "x",
+                                    "y"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "object"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "world": {
+                              "anyOf": [
+                                {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  ],
+                                  "items": false,
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "x": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    "y": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "x",
+                                    "y"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "world"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "mount": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100
+                            },
+                            "local": {
+                              "anyOf": [
+                                {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  ],
+                                  "items": false,
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "x": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    "y": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "x",
+                                    "y"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "object"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "world": {
+                              "anyOf": [
+                                {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  ],
+                                  "items": false,
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "x": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    "y": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "x",
+                                    "y"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "world"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "via": {
+                      "maxItems": 24,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "pulley": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 100
+                          },
+                          "side": {
+                            "anyOf": [
+                              {
+                                "type": "number",
+                                "const": -1
+                              },
+                              {
+                                "type": "number",
+                                "const": 1
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "pulley",
+                          "side"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "target": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "string": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "remove": {
+                "default": [],
+                "maxItems": 200,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                }
+              },
+              "wires": {
+                "default": [],
+                "maxItems": 1000,
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    }
+                  ],
+                  "items": false,
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              },
+              "circuits": {
+                "default": [],
+                "maxItems": 50,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "series": {
+                      "minItems": 2,
+                      "maxItems": 100,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                      }
+                    },
+                    "close": {
+                      "default": true,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "series",
+                    "close"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "joins": {
+                "default": [],
+                "maxItems": 1000,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "from": {
+                      "type": "array",
+                      "prefixItems": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "type": "number",
+                              "const": 0
+                            },
+                            {
+                              "type": "number",
+                              "const": 1
+                            }
+                          ]
+                        }
+                      ],
+                      "items": false,
+                      "minItems": 2,
+                      "maxItems": 2
+                    },
+                    "to": {
+                      "type": "array",
+                      "prefixItems": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "type": "number",
+                              "const": 0
+                            },
+                            {
+                              "type": "number",
+                              "const": 1
+                            }
+                          ]
+                        }
+                      ],
+                      "items": false,
+                      "minItems": 2,
+                      "maxItems": 2
+                    },
+                    "align": {
+                      "default": true,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "from",
+                    "to",
+                    "align"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "layout": {
+                "default": "auto",
+                "type": "string",
+                "enum": [
+                  "auto",
+                  "preserve",
+                  "circuit"
+                ]
+              },
+              "notes": {
+                "type": "object",
+                "properties": {
+                  "sourceText": {
+                    "type": "string",
+                    "maxLength": 20000
+                  },
+                  "source": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "goal": {
+                    "type": "string",
+                    "maxLength": 4000
+                  },
+                  "known": {
+                    "default": [],
+                    "maxItems": 80,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2000
+                    }
+                  },
+                  "derived": {
+                    "default": [],
+                    "maxItems": 80,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2000
+                    }
+                  },
+                  "assumptions": {
+                    "default": [],
+                    "maxItems": 80,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2000
+                    }
+                  },
+                  "unknowns": {
+                    "default": [],
+                    "maxItems": 80,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2000
+                    }
+                  },
+                  "modelSignature": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{16}$"
+                  }
+                },
+                "required": [
+                  "known",
+                  "derived",
+                  "assumptions",
+                  "unknowns"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "version",
+              "objects",
+              "remove",
+              "wires",
+              "circuits",
+              "joins",
+              "layout"
+            ],
+            "additionalProperties": false
+          },
+          "mode": {
+            "default": "replace",
+            "type": "string",
+            "enum": [
+              "replace",
+              "patch"
+            ]
+          }
+        },
+        "required": [
+          "spec",
+          "mode"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "scene.apply",
+      "description": "原子创建或修改实验；先校验、保存恢复快照，再真正应用。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "spec": {
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "number",
+                "const": 1
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "gravity": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  }
+                ]
+              },
+              "world": {
+                "type": "object",
+                "properties": {
+                  "ballRestitution": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "trackRestitution": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "objects": {
+                "default": [],
+                "maxItems": 200,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "at": {
+                      "anyOf": [
+                        {
+                          "type": "array",
+                          "prefixItems": [
+                            {
+                              "anyOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 80
+                                }
+                              ]
+                            },
+                            {
+                              "anyOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 80
+                                }
+                              ]
+                            }
+                          ],
+                          "items": false,
+                          "minItems": 2,
+                          "maxItems": 2
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "x": {
+                              "anyOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 80
+                                }
+                              ]
+                            },
+                            "y": {
+                              "anyOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 80
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "x",
+                            "y"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "angle": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 80
+                        }
+                      ]
+                    },
+                    "velocity": {
+                      "anyOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "type": "array",
+                              "prefixItems": [
+                                {
+                                  "anyOf": [
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 80
+                                    }
+                                  ]
+                                },
+                                {
+                                  "anyOf": [
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 80
+                                    }
+                                  ]
+                                }
+                              ],
+                              "items": false,
+                              "minItems": 2,
+                              "maxItems": 2
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "x": {
+                                  "anyOf": [
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 80
+                                    }
+                                  ]
+                                },
+                                "y": {
+                                  "anyOf": [
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 80
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "x",
+                                "y"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "speed": {
+                              "anyOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 80
+                                }
+                              ]
+                            },
+                            "direction": {
+                              "anyOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 80
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "speed",
+                            "direction"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "params": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "anyOf": [
+                          {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 80
+                              }
+                            ]
+                          },
+                          {
+                            "type": "boolean"
+                          }
+                        ]
+                      }
+                    },
+                    "placeOn": {
+                      "type": "object",
+                      "properties": {
+                        "track": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        "along": {
+                          "anyOf": [
+                            {
+                              "anyOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 80
+                                }
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "fraction": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 1
+                                }
+                              },
+                              "required": [
+                                "fraction"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        "side": {
+                          "default": "left",
+                          "type": "string",
+                          "enum": [
+                            "left",
+                            "right"
+                          ]
+                        },
+                        "align": {
+                          "default": true,
+                          "type": "boolean"
+                        },
+                        "gap": {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 80
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "track",
+                        "side",
+                        "align"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "a": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100
+                            },
+                            "local": {
+                              "anyOf": [
+                                {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  ],
+                                  "items": false,
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "x": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    "y": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "x",
+                                    "y"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "object"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "world": {
+                              "anyOf": [
+                                {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  ],
+                                  "items": false,
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "x": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    "y": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "x",
+                                    "y"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "world"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "b": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100
+                            },
+                            "local": {
+                              "anyOf": [
+                                {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  ],
+                                  "items": false,
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "x": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    "y": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "x",
+                                    "y"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "object"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "world": {
+                              "anyOf": [
+                                {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  ],
+                                  "items": false,
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "x": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    "y": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "x",
+                                    "y"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "world"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "mount": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100
+                            },
+                            "local": {
+                              "anyOf": [
+                                {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  ],
+                                  "items": false,
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "x": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    "y": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "x",
+                                    "y"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "object"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "world": {
+                              "anyOf": [
+                                {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  ],
+                                  "items": false,
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "x": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    "y": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "x",
+                                    "y"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "world"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "via": {
+                      "maxItems": 24,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "pulley": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 100
+                          },
+                          "side": {
+                            "anyOf": [
+                              {
+                                "type": "number",
+                                "const": -1
+                              },
+                              {
+                                "type": "number",
+                                "const": 1
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "pulley",
+                          "side"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "target": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "string": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "remove": {
+                "default": [],
+                "maxItems": 200,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                }
+              },
+              "wires": {
+                "default": [],
+                "maxItems": 1000,
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    }
+                  ],
+                  "items": false,
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              },
+              "circuits": {
+                "default": [],
+                "maxItems": 50,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "series": {
+                      "minItems": 2,
+                      "maxItems": 100,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                      }
+                    },
+                    "close": {
+                      "default": true,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "series",
+                    "close"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "joins": {
+                "default": [],
+                "maxItems": 1000,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "from": {
+                      "type": "array",
+                      "prefixItems": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "type": "number",
+                              "const": 0
+                            },
+                            {
+                              "type": "number",
+                              "const": 1
+                            }
+                          ]
+                        }
+                      ],
+                      "items": false,
+                      "minItems": 2,
+                      "maxItems": 2
+                    },
+                    "to": {
+                      "type": "array",
+                      "prefixItems": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "type": "number",
+                              "const": 0
+                            },
+                            {
+                              "type": "number",
+                              "const": 1
+                            }
+                          ]
+                        }
+                      ],
+                      "items": false,
+                      "minItems": 2,
+                      "maxItems": 2
+                    },
+                    "align": {
+                      "default": true,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "from",
+                    "to",
+                    "align"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "layout": {
+                "default": "auto",
+                "type": "string",
+                "enum": [
+                  "auto",
+                  "preserve",
+                  "circuit"
+                ]
+              },
+              "notes": {
+                "type": "object",
+                "properties": {
+                  "sourceText": {
+                    "type": "string",
+                    "maxLength": 20000
+                  },
+                  "source": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "goal": {
+                    "type": "string",
+                    "maxLength": 4000
+                  },
+                  "known": {
+                    "default": [],
+                    "maxItems": 80,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2000
+                    }
+                  },
+                  "derived": {
+                    "default": [],
+                    "maxItems": 80,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2000
+                    }
+                  },
+                  "assumptions": {
+                    "default": [],
+                    "maxItems": 80,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2000
+                    }
+                  },
+                  "unknowns": {
+                    "default": [],
+                    "maxItems": 80,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2000
+                    }
+                  },
+                  "modelSignature": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{16}$"
+                  }
+                },
+                "required": [
+                  "known",
+                  "derived",
+                  "assumptions",
+                  "unknowns"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "version",
+              "objects",
+              "remove",
+              "wires",
+              "circuits",
+              "joins",
+              "layout"
+            ],
+            "additionalProperties": false
+          },
+          "mode": {
+            "default": "replace",
+            "type": "string",
+            "enum": [
+              "replace",
+              "patch"
+            ]
+          }
+        },
+        "required": [
+          "spec",
+          "mode"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "simulation.run",
+      "description": "开始或继续实验。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "simulation.pause",
+      "description": "暂停实验。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "simulation.reset",
+      "description": "恢复实验初始状态与编辑权限。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "simulation.step",
+      "description": "按固定 1/240 秒步长确定性推进，返回实际步数、时间及运行读数；最终保持暂停。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "seconds": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 30
+          }
+        },
+        "required": [
+          "seconds"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "measurements.get",
+      "description": "读取真实运行状态，或所选对象的原始历史；不插值。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "object": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "history": {
+            "default": false,
+            "type": "boolean"
+          },
+          "limit": {
+            "default": 300,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3000
+          },
+          "since": {
+            "type": "number",
+            "minimum": 0
+          },
+          "until": {
+            "type": "number",
+            "minimum": 0
+          },
+          "after": {
+            "type": "number",
+            "minimum": 0
+          },
+          "order": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          }
+        },
+        "required": [
+          "history",
+          "limit"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "view.set",
+      "description": "调整展示视角、标注、方向箭头、轨迹及曲线面板；zoom 为绝对相机缩放值，越小视野越广。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "camera": {
+            "type": "string",
+            "enum": [
+              "fit",
+              "front",
+              "perspective"
+            ]
+          },
+          "zoom": {
+            "type": "number",
+            "minimum": 0.05,
+            "maximum": 50
+          },
+          "labels": {
+            "type": "boolean"
+          },
+          "vectors": {
+            "type": "boolean"
+          },
+          "trajectory": {
+            "type": "boolean"
+          },
+          "chart": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "selection.set",
+      "description": "按对象 ID 或唯一名称选中器材以显示属性与受力。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "objects": {
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            }
+          }
+        },
+        "required": [
+          "objects"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "circuit.switch",
+      "description": "设置指定开关的开合；运行时只改变当前开合，重置恢复初始条件。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "object": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "closed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "object",
+          "closed"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "recovery.list",
+      "description": "列出自动保存的实验恢复快照。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "recovery.restore",
+      "description": "恢复指定快照并先备份当前实验。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "artifact.save",
+      "description": "保存当前初始实验到应用专属输出目录，返回实际路径与 SHA-256。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[\\p{L}\\p{N}_ -]+$"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "artifact.screenshot",
+      "description": "等待场景绘制后截图到应用专属输出目录，返回 PNG 路径及 SHA-256。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "name": {
+            "default": "experiment",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[\\p{L}\\p{N}_ -]+$"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ]
+}
