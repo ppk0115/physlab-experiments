@@ -1,7 +1,15 @@
 {
   "protocolVersion": 1,
-  "sceneSchemaVersion": 13,
+  "sceneSchemaVersion": 14,
+  "modelSpecVersions": [
+    1,
+    2
+  ],
   "capabilities": {
+    "accelerationReadings": true,
+    "textbookPointModels": true,
+    "formalTrigonometry": true,
+    "modelAnalysis": true,
     "walls": true,
     "textbookJoins": true,
     "independentAnalysis": true
@@ -9,123 +17,8 @@
   "units": "SI; angle in degrees unless stated",
   "commands": [
     {
-      "name": "analysis.query",
-      "description": "独立回算运动状态，不改变主实验。支持按时间、物理量反查以及时间/物理量一致性校验，返回真实计算状态、残差与来源。",
-      "inputSchema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {
-          "object": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 100
-          },
-          "channel": {
-            "default": "y",
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 80
-          },
-          "mode": {
-            "default": "time",
-            "type": "string",
-            "enum": [
-              "time",
-              "value",
-              "both"
-            ]
-          },
-          "time": {
-            "type": "number",
-            "minimum": 0
-          },
-          "value": {
-            "type": "number"
-          },
-          "start": {
-            "type": "number",
-            "minimum": 0
-          },
-          "end": {
-            "type": "number",
-            "minimum": 0
-          }
-        },
-        "required": [
-          "object",
-          "channel",
-          "mode"
-        ],
-        "additionalProperties": false
-      }
-    },
-    {
-      "name": "analysis.clear",
-      "description": "取消独立回算并清除虚拟位置及定位读数，不重置主实验。",
-      "inputSchema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {},
-        "additionalProperties": false
-      }
-    },
-    {
-      "name": "status",
-      "description": "读取当前实验、编辑/运行状态、场景 revision、连接状态与输出目录。",
-      "inputSchema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {},
-        "additionalProperties": false
-      }
-    },
-    {
-      "name": "catalog.list",
-      "description": "查询真实器材类型、中文名称和领域。",
-      "inputSchema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {},
-        "additionalProperties": false
-      }
-    },
-    {
-      "name": "catalog.describe",
-      "description": "查询指定器材的参数单位、默认值、范围和连接方法。",
-      "inputSchema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {
-          "types": {
-            "minItems": 1,
-            "maxItems": 60,
-            "type": "array",
-            "items": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 100
-            }
-          }
-        },
-        "required": [
-          "types"
-        ],
-        "additionalProperties": false
-      }
-    },
-    {
-      "name": "scene.get",
-      "description": "读取可保存的初始场景及题目信息。",
-      "inputSchema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {},
-        "additionalProperties": false
-      }
-    },
-    {
-      "name": "scene.validate",
-      "description": "校验简洁建模格式，返回计算后的坐标、连接及警告，不改变当前实验。",
+      "name": "model.analyze",
+      "description": "分析正式题设、三角约定、质点与组合可行性，返回采用的模型、缺失条件与未支持原因；不改变实验。",
       "inputSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
@@ -134,8 +27,71 @@
             "type": "object",
             "properties": {
               "version": {
-                "type": "number",
-                "const": 1
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "const": 1
+                  },
+                  {
+                    "type": "number",
+                    "const": 2
+                  }
+                ]
+              },
+              "textbook": {
+                "type": "object",
+                "properties": {
+                  "standard": {
+                    "default": "school",
+                    "type": "string",
+                    "const": "school"
+                  },
+                  "constants": {
+                    "default": {
+                      "pi": 3.141592653589793,
+                      "coulomb": 8987551792.3,
+                      "source": "系统默认；题给值优先"
+                    },
+                    "type": "object",
+                    "properties": {
+                      "pi": {
+                        "default": 3.141592653589793,
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "coulomb": {
+                        "default": 8987551792.3,
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "source": {
+                        "default": "系统默认；题给值优先",
+                        "type": "string",
+                        "maxLength": 2000
+                      }
+                    },
+                    "required": [
+                      "pi",
+                      "coulomb",
+                      "source"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "migrationIssues": {
+                    "default": [],
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 2000
+                    }
+                  }
+                },
+                "required": [
+                  "standard",
+                  "constants",
+                  "migrationIssues"
+                ],
+                "additionalProperties": false
               },
               "title": {
                 "type": "string",
@@ -274,6 +230,109 @@
                         }
                       ]
                     },
+                    "mechanics": {
+                      "type": "object",
+                      "properties": {
+                        "model": {
+                          "type": "string",
+                          "enum": [
+                            "point",
+                            "finite-translation",
+                            "rigid"
+                          ]
+                        },
+                        "initialTrack": {
+                          "type": "object",
+                          "properties": {
+                            "trackId": {
+                              "type": "string"
+                            },
+                            "along": {
+                              "type": "number",
+                              "minimum": 0
+                            },
+                            "side": {
+                              "anyOf": [
+                                {
+                                  "type": "number",
+                                  "const": 1
+                                },
+                                {
+                                  "type": "number",
+                                  "const": -1
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "trackId",
+                            "along",
+                            "side"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "physicalSize": {
+                          "type": "object",
+                          "properties": {
+                            "radius": {
+                              "type": "number",
+                              "exclusiveMinimum": 0
+                            },
+                            "width": {
+                              "type": "number",
+                              "exclusiveMinimum": 0
+                            },
+                            "height": {
+                              "type": "number",
+                              "exclusiveMinimum": 0
+                            },
+                            "depth": {
+                              "type": "number",
+                              "exclusiveMinimum": 0
+                            },
+                            "volume": {
+                              "type": "number",
+                              "exclusiveMinimum": 0
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "model"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "trigonometry": {
+                      "type": "object",
+                      "properties": {
+                        "sin": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "cos": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "source": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 1000
+                        },
+                        "raw": {
+                          "type": "string",
+                          "maxLength": 2000
+                        }
+                      },
+                      "required": [
+                        "sin",
+                        "cos",
+                        "source"
+                      ],
+                      "additionalProperties": false
+                    },
                     "velocity": {
                       "anyOf": [
                         {
@@ -372,6 +431,1517 @@
                                   "maxLength": 80
                                 }
                               ]
+                            },
+                            "trigonometry": {
+                              "type": "object",
+                              "properties": {
+                                "sin": {
+                                  "type": "number",
+                                  "minimum": -1,
+                                  "maximum": 1
+                                },
+                                "cos": {
+                                  "type": "number",
+                                  "minimum": -1,
+                                  "maximum": 1
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1000
+                                },
+                                "raw": {
+                                  "type": "string",
+                                  "maxLength": 2000
+                                }
+                              },
+                              "required": [
+                                "sin",
+                                "cos",
+                                "source"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "speed",
+                            "direction"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "params": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "anyOf": [
+                          {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 80
+                              }
+                            ]
+                          },
+                          {
+                            "type": "boolean"
+                          }
+                        ]
+                      }
+                    },
+                    "placeOn": {
+                      "type": "object",
+                      "properties": {
+                        "track": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        "along": {
+                          "anyOf": [
+                            {
+                              "anyOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 80
+                                }
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "fraction": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 1
+                                }
+                              },
+                              "required": [
+                                "fraction"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        "side": {
+                          "default": "left",
+                          "type": "string",
+                          "enum": [
+                            "left",
+                            "right"
+                          ]
+                        },
+                        "align": {
+                          "default": true,
+                          "type": "boolean"
+                        },
+                        "gap": {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 80
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "track",
+                        "side",
+                        "align"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "a": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100
+                            },
+                            "local": {
+                              "anyOf": [
+                                {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  ],
+                                  "items": false,
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "x": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    "y": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "x",
+                                    "y"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "object"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "world": {
+                              "anyOf": [
+                                {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  ],
+                                  "items": false,
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "x": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    "y": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "x",
+                                    "y"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "world"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "b": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100
+                            },
+                            "local": {
+                              "anyOf": [
+                                {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  ],
+                                  "items": false,
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "x": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    "y": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "x",
+                                    "y"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "object"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "world": {
+                              "anyOf": [
+                                {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  ],
+                                  "items": false,
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "x": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    "y": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "x",
+                                    "y"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "world"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "mount": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100
+                            },
+                            "local": {
+                              "anyOf": [
+                                {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  ],
+                                  "items": false,
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "x": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    "y": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "x",
+                                    "y"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "object"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "world": {
+                              "anyOf": [
+                                {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  ],
+                                  "items": false,
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "x": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    },
+                                    "y": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "x",
+                                    "y"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "world"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "via": {
+                      "maxItems": 24,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "pulley": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 100
+                          },
+                          "side": {
+                            "anyOf": [
+                              {
+                                "type": "number",
+                                "const": -1
+                              },
+                              {
+                                "type": "number",
+                                "const": 1
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "pulley",
+                          "side"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "target": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "string": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "remove": {
+                "default": [],
+                "maxItems": 200,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                }
+              },
+              "wires": {
+                "default": [],
+                "maxItems": 1000,
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    }
+                  ],
+                  "items": false,
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              },
+              "circuits": {
+                "default": [],
+                "maxItems": 50,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "series": {
+                      "minItems": 2,
+                      "maxItems": 100,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                      }
+                    },
+                    "close": {
+                      "default": true,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "series",
+                    "close"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "joins": {
+                "default": [],
+                "maxItems": 1000,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "from": {
+                      "type": "array",
+                      "prefixItems": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "type": "number",
+                              "const": 0
+                            },
+                            {
+                              "type": "number",
+                              "const": 1
+                            }
+                          ]
+                        }
+                      ],
+                      "items": false,
+                      "minItems": 2,
+                      "maxItems": 2
+                    },
+                    "to": {
+                      "type": "array",
+                      "prefixItems": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "type": "number",
+                              "const": 0
+                            },
+                            {
+                              "type": "number",
+                              "const": 1
+                            }
+                          ]
+                        }
+                      ],
+                      "items": false,
+                      "minItems": 2,
+                      "maxItems": 2
+                    },
+                    "align": {
+                      "default": false,
+                      "type": "boolean"
+                    },
+                    "model": {
+                      "default": "textbook",
+                      "type": "string",
+                      "enum": [
+                        "textbook",
+                        "geometric"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "from",
+                    "to",
+                    "align",
+                    "model"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "layout": {
+                "default": "auto",
+                "type": "string",
+                "enum": [
+                  "auto",
+                  "preserve",
+                  "circuit"
+                ]
+              },
+              "notes": {
+                "type": "object",
+                "properties": {
+                  "sourceText": {
+                    "type": "string",
+                    "maxLength": 20000
+                  },
+                  "source": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "goal": {
+                    "type": "string",
+                    "maxLength": 4000
+                  },
+                  "known": {
+                    "default": [],
+                    "maxItems": 80,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2000
+                    }
+                  },
+                  "derived": {
+                    "default": [],
+                    "maxItems": 80,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2000
+                    }
+                  },
+                  "assumptions": {
+                    "default": [],
+                    "maxItems": 80,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2000
+                    }
+                  },
+                  "unknowns": {
+                    "default": [],
+                    "maxItems": 80,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2000
+                    }
+                  },
+                  "modelSignature": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{16}$"
+                  }
+                },
+                "required": [
+                  "known",
+                  "derived",
+                  "assumptions",
+                  "unknowns"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "version",
+              "objects",
+              "remove",
+              "wires",
+              "circuits",
+              "joins",
+              "layout"
+            ],
+            "additionalProperties": false
+          },
+          "mode": {
+            "default": "replace",
+            "type": "string",
+            "enum": [
+              "replace",
+              "patch"
+            ]
+          }
+        },
+        "required": [
+          "mode"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "analysis.query",
+      "description": "独立回算运动状态，不改变主实验。支持按时间、物理量反查以及时间/物理量一致性校验，返回真实计算状态、残差与来源。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "object": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "channel": {
+            "default": "y",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "mode": {
+            "default": "time",
+            "type": "string",
+            "enum": [
+              "time",
+              "value",
+              "both"
+            ]
+          },
+          "phase": {
+            "type": "string",
+            "enum": [
+              "before",
+              "after"
+            ]
+          },
+          "time": {
+            "type": "number",
+            "minimum": 0
+          },
+          "value": {
+            "type": "number"
+          },
+          "start": {
+            "type": "number",
+            "minimum": 0
+          },
+          "end": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "object",
+          "channel",
+          "mode"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "analysis.clear",
+      "description": "取消独立回算并清除虚拟位置及定位读数，不重置主实验。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "status",
+      "description": "读取当前实验、编辑/运行状态、场景 revision、连接状态与输出目录。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "catalog.list",
+      "description": "查询真实器材类型、中文名称和领域。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "catalog.describe",
+      "description": "查询指定器材的参数单位、默认值、范围和连接方法。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "types": {
+            "minItems": 1,
+            "maxItems": 60,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            }
+          }
+        },
+        "required": [
+          "types"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "scene.get",
+      "description": "读取可保存的初始场景及题目信息。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "scene.validate",
+      "description": "校验简洁建模格式，返回计算后的坐标、连接及警告，不改变当前实验。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "spec": {
+            "type": "object",
+            "properties": {
+              "version": {
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "const": 1
+                  },
+                  {
+                    "type": "number",
+                    "const": 2
+                  }
+                ]
+              },
+              "textbook": {
+                "type": "object",
+                "properties": {
+                  "standard": {
+                    "default": "school",
+                    "type": "string",
+                    "const": "school"
+                  },
+                  "constants": {
+                    "default": {
+                      "pi": 3.141592653589793,
+                      "coulomb": 8987551792.3,
+                      "source": "系统默认；题给值优先"
+                    },
+                    "type": "object",
+                    "properties": {
+                      "pi": {
+                        "default": 3.141592653589793,
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "coulomb": {
+                        "default": 8987551792.3,
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "source": {
+                        "default": "系统默认；题给值优先",
+                        "type": "string",
+                        "maxLength": 2000
+                      }
+                    },
+                    "required": [
+                      "pi",
+                      "coulomb",
+                      "source"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "migrationIssues": {
+                    "default": [],
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 2000
+                    }
+                  }
+                },
+                "required": [
+                  "standard",
+                  "constants",
+                  "migrationIssues"
+                ],
+                "additionalProperties": false
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "gravity": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  }
+                ]
+              },
+              "world": {
+                "type": "object",
+                "properties": {
+                  "ballRestitution": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "trackRestitution": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "objects": {
+                "default": [],
+                "maxItems": 200,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "at": {
+                      "anyOf": [
+                        {
+                          "type": "array",
+                          "prefixItems": [
+                            {
+                              "anyOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 80
+                                }
+                              ]
+                            },
+                            {
+                              "anyOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 80
+                                }
+                              ]
+                            }
+                          ],
+                          "items": false,
+                          "minItems": 2,
+                          "maxItems": 2
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "x": {
+                              "anyOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 80
+                                }
+                              ]
+                            },
+                            "y": {
+                              "anyOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 80
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "x",
+                            "y"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "angle": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 80
+                        }
+                      ]
+                    },
+                    "mechanics": {
+                      "type": "object",
+                      "properties": {
+                        "model": {
+                          "type": "string",
+                          "enum": [
+                            "point",
+                            "finite-translation",
+                            "rigid"
+                          ]
+                        },
+                        "initialTrack": {
+                          "type": "object",
+                          "properties": {
+                            "trackId": {
+                              "type": "string"
+                            },
+                            "along": {
+                              "type": "number",
+                              "minimum": 0
+                            },
+                            "side": {
+                              "anyOf": [
+                                {
+                                  "type": "number",
+                                  "const": 1
+                                },
+                                {
+                                  "type": "number",
+                                  "const": -1
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "trackId",
+                            "along",
+                            "side"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "physicalSize": {
+                          "type": "object",
+                          "properties": {
+                            "radius": {
+                              "type": "number",
+                              "exclusiveMinimum": 0
+                            },
+                            "width": {
+                              "type": "number",
+                              "exclusiveMinimum": 0
+                            },
+                            "height": {
+                              "type": "number",
+                              "exclusiveMinimum": 0
+                            },
+                            "depth": {
+                              "type": "number",
+                              "exclusiveMinimum": 0
+                            },
+                            "volume": {
+                              "type": "number",
+                              "exclusiveMinimum": 0
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "model"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "trigonometry": {
+                      "type": "object",
+                      "properties": {
+                        "sin": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "cos": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "source": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 1000
+                        },
+                        "raw": {
+                          "type": "string",
+                          "maxLength": 2000
+                        }
+                      },
+                      "required": [
+                        "sin",
+                        "cos",
+                        "source"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "velocity": {
+                      "anyOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "type": "array",
+                              "prefixItems": [
+                                {
+                                  "anyOf": [
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 80
+                                    }
+                                  ]
+                                },
+                                {
+                                  "anyOf": [
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 80
+                                    }
+                                  ]
+                                }
+                              ],
+                              "items": false,
+                              "minItems": 2,
+                              "maxItems": 2
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "x": {
+                                  "anyOf": [
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 80
+                                    }
+                                  ]
+                                },
+                                "y": {
+                                  "anyOf": [
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 80
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "x",
+                                "y"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "speed": {
+                              "anyOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 80
+                                }
+                              ]
+                            },
+                            "direction": {
+                              "anyOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 80
+                                }
+                              ]
+                            },
+                            "trigonometry": {
+                              "type": "object",
+                              "properties": {
+                                "sin": {
+                                  "type": "number",
+                                  "minimum": -1,
+                                  "maximum": 1
+                                },
+                                "cos": {
+                                  "type": "number",
+                                  "minimum": -1,
+                                  "maximum": 1
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1000
+                                },
+                                "raw": {
+                                  "type": "string",
+                                  "maxLength": 2000
+                                }
+                              },
+                              "required": [
+                                "sin",
+                                "cos",
+                                "source"
+                              ],
+                              "additionalProperties": false
                             }
                           },
                           "required": [
@@ -1298,8 +2868,71 @@
             "type": "object",
             "properties": {
               "version": {
-                "type": "number",
-                "const": 1
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "const": 1
+                  },
+                  {
+                    "type": "number",
+                    "const": 2
+                  }
+                ]
+              },
+              "textbook": {
+                "type": "object",
+                "properties": {
+                  "standard": {
+                    "default": "school",
+                    "type": "string",
+                    "const": "school"
+                  },
+                  "constants": {
+                    "default": {
+                      "pi": 3.141592653589793,
+                      "coulomb": 8987551792.3,
+                      "source": "系统默认；题给值优先"
+                    },
+                    "type": "object",
+                    "properties": {
+                      "pi": {
+                        "default": 3.141592653589793,
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "coulomb": {
+                        "default": 8987551792.3,
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "source": {
+                        "default": "系统默认；题给值优先",
+                        "type": "string",
+                        "maxLength": 2000
+                      }
+                    },
+                    "required": [
+                      "pi",
+                      "coulomb",
+                      "source"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "migrationIssues": {
+                    "default": [],
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 2000
+                    }
+                  }
+                },
+                "required": [
+                  "standard",
+                  "constants",
+                  "migrationIssues"
+                ],
+                "additionalProperties": false
               },
               "title": {
                 "type": "string",
@@ -1438,6 +3071,109 @@
                         }
                       ]
                     },
+                    "mechanics": {
+                      "type": "object",
+                      "properties": {
+                        "model": {
+                          "type": "string",
+                          "enum": [
+                            "point",
+                            "finite-translation",
+                            "rigid"
+                          ]
+                        },
+                        "initialTrack": {
+                          "type": "object",
+                          "properties": {
+                            "trackId": {
+                              "type": "string"
+                            },
+                            "along": {
+                              "type": "number",
+                              "minimum": 0
+                            },
+                            "side": {
+                              "anyOf": [
+                                {
+                                  "type": "number",
+                                  "const": 1
+                                },
+                                {
+                                  "type": "number",
+                                  "const": -1
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "trackId",
+                            "along",
+                            "side"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "physicalSize": {
+                          "type": "object",
+                          "properties": {
+                            "radius": {
+                              "type": "number",
+                              "exclusiveMinimum": 0
+                            },
+                            "width": {
+                              "type": "number",
+                              "exclusiveMinimum": 0
+                            },
+                            "height": {
+                              "type": "number",
+                              "exclusiveMinimum": 0
+                            },
+                            "depth": {
+                              "type": "number",
+                              "exclusiveMinimum": 0
+                            },
+                            "volume": {
+                              "type": "number",
+                              "exclusiveMinimum": 0
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "model"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "trigonometry": {
+                      "type": "object",
+                      "properties": {
+                        "sin": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "cos": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "source": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 1000
+                        },
+                        "raw": {
+                          "type": "string",
+                          "maxLength": 2000
+                        }
+                      },
+                      "required": [
+                        "sin",
+                        "cos",
+                        "source"
+                      ],
+                      "additionalProperties": false
+                    },
                     "velocity": {
                       "anyOf": [
                         {
@@ -1536,6 +3272,36 @@
                                   "maxLength": 80
                                 }
                               ]
+                            },
+                            "trigonometry": {
+                              "type": "object",
+                              "properties": {
+                                "sin": {
+                                  "type": "number",
+                                  "minimum": -1,
+                                  "maximum": 1
+                                },
+                                "cos": {
+                                  "type": "number",
+                                  "minimum": -1,
+                                  "maximum": 1
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1000
+                                },
+                                "raw": {
+                                  "type": "string",
+                                  "maxLength": 2000
+                                }
+                              },
+                              "required": [
+                                "sin",
+                                "cos",
+                                "source"
+                              ],
+                              "additionalProperties": false
                             }
                           },
                           "required": [

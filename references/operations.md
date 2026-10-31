@@ -2,12 +2,13 @@
 
 CLI优先用固定入口 `PhysLabAgent.exe <协议命令> --input <参数文件>`；兼容脚本为 `python <技能目录>/scripts/physlab.py`。完整定位方法见connection.md。显式窗口连接用 `--connection <导出文件>`；MCP先调用physlab_connect并传connectionFile，后续工具复用目标。CLI输出JSON，退出码0表示ok:true；MCP工具名为physlab_加协议名中的点改下划线。
 
-常用顺序：connect → catalog.list / catalog.describe → scene.validate → scene.apply → view.set → artifact.screenshot 并查看 → simulation.step / measurements.get → reset 或暂停 → artifact.save。
+常用顺序：connect → catalog.list / catalog.describe → model.analyze → scene.validate → scene.apply → view.set → artifact.screenshot 并查看 → simulation.step / measurements.get → reset 或暂停 → artifact.save。
 
+- model.analyze 使用 {"spec":规格,"mode":"replace"} 分析拟建模型，省略spec分析当前场景；scene.validate返回同一 modelReport。solvable:false 时按 issues 的器材和原因报告，不能创建其他模型后声称完成。
 - validate / apply 参数是 {"spec":简洁规格,"mode":"replace"}；patch 用于已有场景。确认 applied:true 和 recoveryId，不能只看到请求发送就宣称完成。
 - view.set 支持 camera:fit/front/perspective、zoom、labels、vectors、trajectory、chart。zoom 为绝对相机缩放值，范围 0.05–50，值越小视野越广；可从返回的 camera.zoom 调低以给速度箭头留边距。selection.set 用 objects:[ID] 选择观察对象。
 - simulation.step 的 seconds 量化到最近 1/240 s，最少一步，每次最多 30 s；以实际 advancedSeconds 与 state.time 为准。run 连续播放，pause 暂停，reset 恢复编辑。
-- measurements.get {} 读取全部实际状态；object 指定对象或 system。history:true 默认返回最后 limit 条原始记录（最多3000），不插值。要读取较早或完整高频记录，使用 order:"asc",since:0，随后将返回的 nextAfter 作为 after 继续分页，直到 hasMore:false；until 限定时间上界。windowStart/windowEnd 表示当前保留窗口，分页期间需留意旧记录过期。source:initial 是初始条件，不能当作运行后结果。静态电路、光学也能直接测量。
+- measurements.get {} 读取全部实际状态；object 指定对象或 system。history:true 默认返回最后 limit 条原始记录（最多3000），不插值。同一事件的前后记录不会被分页拆开，因此特别小的 limit 可能返回整个同时间组。要读取较早或完整高频记录，使用 order:"asc",since:0，随后将返回的 nextAfter 作为 after 继续分页，直到 hasMore:false；until 限定时间上界。windowStart/windowEnd 表示当前保留窗口，分页期间需留意旧记录过期。source:initial 是初始条件，不能当作运行后结果。静态电路、光学也能直接测量。
 - scene.get 的 studyStale 表示当前物理条件已与题目依据不一致。修改题目参数后重新核对推导和参考点，并通过 patch 同时更新 notes；应用不会自动解题或移动参考点。场景格式12新增依据签名，旧文件内存迁移后仍可编辑。
 - artifact.save 保存初始场景和题目依据；截图返回 PNG。文件均在应用专属目录，返回真实路径、大小和 SHA-256。name 只允许中文、字母、数字、空格、下划线、连字符，不能传任意系统路径。MCP 截图会附图像内容。
 
@@ -28,11 +29,14 @@ INVALID_SPEC / INVALID_ARGUMENTS 看 details 字段路径；UNKNOWN_PARAMETER / 
 
 ## 独立精确定位（analysis.query / analysis.clear）
 
-协议仍为1；先检查应用协议清单的 `capabilities.independentAnalysis`，旧版不支持时请升级到1.14.0以上。实验文件格式为13，旧文件只在保存时写入新版本；轨道语义改变后，旧题目依据会标为过期，需要重新核对。
+协议仍为1；先检查应用协议清单的 `capabilities.independentAnalysis`，旧版不支持时请升级到1.14.0以上。教材模型版实验格式为14，旧文件只在保存时写入新版本；轨道语义改变后，旧题目依据会标为过期，需要重新核对。
 
-- `analysis.query {"object":"ball","channel":"y","mode":"time","time":1.001234}`：独立回放初始场景和已记录开关操作，返回真实状态、时间、来源及误差；不改变主实验时钟、物体位置或曲线。
+- `analysis.query {"object":"ball","channel":"y","mode":"time","time":1.001234,"phase":"after"}`：独立回放初始场景和已记录开关操作，返回真实状态、时间、来源及误差；不改变主实验时钟、物体位置或曲线。
 - `mode:"value", value:-5, start:0, end:10`：按物理量反查，返回最多100个候选，含上升/下降、极值或持续满足的时间区间。默认范围0到max(10s,当前时间)，超限需缩小范围。
 - `mode:"both", time:1, value:-5`：校验同一状态；条件不符返回 `consistent:false`、实际值和差值，不生成匹配分身。
 - 返回 `sample` 中所有量来自同一状态；`source:"prediction"` 为尚未发生的未来预测，后续操作可能改变结果。`interpolated:false` 表示来自同一内核的独立计算，不是对绘图点插值。时间求值目标1μs、高度残差目标10μm，只表示数值定位精度。
 - `analysis.clear {}` 取消计算并清除定位读数/分身，不重置实验。新查询、切换对象或模型变化会取消旧计算；单次超过30秒返回超时提示。
+- 教材事件记录保留精确时间及 before/after 状态；在事件时刻用 phase:"before" / "after" 区分撞墙前后，不能对速度跳变插值。system.frictionHeat 是摩擦热量，collisionLoss 是非弹性碰撞损失；frictionSegments 按过程分段，不能混用。
 - 主实验仍采用固定1/240s步长，独立求值最后可用短步抵达目标时间；碰撞跳变处找不到的中间值不能报告成解。
+
+教材开发版新增连续加速度通道：运动物体的 `acceleration` 为加速度大小，`ax` / `ay` 为分量，单位均为 `m/s²`。初始状态、运行、历史和 `analysis.query` 共用求解方程；先检查 `capabilities.accelerationReadings`。事件时刻用 phase 区分前后单侧加速度，碰撞和绳子收紧的瞬时冲量不能换算为有限瞬时加速度。不要用相邻绘图采样速度之差计算它，也不要把速率不变误认为加速度为零。
