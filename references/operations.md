@@ -24,3 +24,15 @@ apply 校验成功后才保存恢复快照并提交。recovery.list 列出快照
 INVALID_SPEC / INVALID_ARGUMENTS 看 details 字段路径；UNKNOWN_PARAMETER / UNSUPPORTED_EQUIPMENT 重新查目录；UNIT_MISMATCH 修正单位；MISSING_OBJECT / AMBIGUOUS_OBJECT 修正引用；INVALID_PLACEMENT 看重叠、嵌入、绳长和挂点；INVALID_CIRCUIT 看拓扑；SIMULATION_REJECTED 看物理参数范围；EDIT_LOCKED 先 reset；APP_NOT_READY / RENDER_TIMEOUT 检查界面和 3D；CANCELLED 表示用户关闭连接，不自行重新启用。
 
 同一错误连续两次修正仍失败，应检查模型理解和器材说明，而非无界重试或降低题意要求。应用没有任意代码执行、shell 或无限制文件操作接口。
+
+
+## 独立精确定位（analysis.query / analysis.clear）
+
+协议仍为1；先检查应用协议清单的 `capabilities.independentAnalysis`，旧版不支持时请升级到1.14.0以上。实验文件格式为13，旧文件只在保存时写入新版本；轨道语义改变后，旧题目依据会标为过期，需要重新核对。
+
+- `analysis.query {"object":"ball","channel":"y","mode":"time","time":1.001234}`：独立回放初始场景和已记录开关操作，返回真实状态、时间、来源及误差；不改变主实验时钟、物体位置或曲线。
+- `mode:"value", value:-5, start:0, end:10`：按物理量反查，返回最多100个候选，含上升/下降、极值或持续满足的时间区间。默认范围0到max(10s,当前时间)，超限需缩小范围。
+- `mode:"both", time:1, value:-5`：校验同一状态；条件不符返回 `consistent:false`、实际值和差值，不生成匹配分身。
+- 返回 `sample` 中所有量来自同一状态；`source:"prediction"` 为尚未发生的未来预测，后续操作可能改变结果。`interpolated:false` 表示来自同一内核的独立计算，不是对绘图点插值。时间求值目标1μs、高度残差目标10μm，只表示数值定位精度。
+- `analysis.clear {}` 取消计算并清除定位读数/分身，不重置实验。新查询、切换对象或模型变化会取消旧计算；单次超过30秒返回超时提示。
+- 主实验仍采用固定1/240s步长，独立求值最后可用短步抵达目标时间；碰撞跳变处找不到的中间值不能报告成解。
