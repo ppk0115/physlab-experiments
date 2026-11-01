@@ -6,6 +6,10 @@
     2
   ],
   "capabilities": {
+    "unmountedPulleyDrafts": true,
+    "pointHeadOnCollisions": true,
+    "finiteSphereCollisions": true,
+    "collisionEnergyReadings": true,
     "validationHighlights": true,
     "constraintEditingLimits": true,
     "boxSelection": true,
@@ -50,6 +54,13 @@
                     "default": "school",
                     "type": "string",
                     "const": "school"
+                  },
+                  "pointCollisions": {
+                    "type": "string",
+                    "enum": [
+                      "head-on",
+                      "disabled"
+                    ]
                   },
                   "constants": {
                     "default": {
@@ -1532,6 +1543,13 @@
                     "type": "string",
                     "const": "school"
                   },
+                  "pointCollisions": {
+                    "type": "string",
+                    "enum": [
+                      "head-on",
+                      "disabled"
+                    ]
+                  },
                   "constants": {
                     "default": {
                       "pi": 3.141592653589793,
@@ -2891,6 +2909,13 @@
                     "default": "school",
                     "type": "string",
                     "const": "school"
+                  },
+                  "pointCollisions": {
+                    "type": "string",
+                    "enum": [
+                      "head-on",
+                      "disabled"
+                    ]
                   },
                   "constants": {
                     "default": {

@@ -41,6 +41,8 @@ description: 根据用户提供的文字或带图物理题，在本地 PhysLab �
 
 支持 `validationHighlights` 时，启动失败会高亮报告中 `issues[].objects` 对应器材并提供定位入口；`simulation.run` 的失败详情也含这些ID。按模型分析报告修复具体参数或引用，不能靠改题通过。`constraintEditingLimits` 和 `boxSelection` 表示界面编辑能力，框选只供整体移动/删除，不是新的Agent命令；Agent继续使用已有 `selection.set` 和 `scene.apply`。
 
+动滑轮只单独添加，不自动创建砝码；载荷必须来自题设或明确的展示假设。滑轮中心的世界坐标与安装局部偏移分别读取。小球保持题设的质点/有限尺寸模型；碰撞支持范围、物理半径与能量核验见 [references/modeling.md](references/modeling.md#小球碰撞与能量)。
+
 ## 电路布局
 
 涉及电路时读取 [references/circuit-layout.md](references/circuit-layout.md)。以题目接线关系为准；普通串并联电路默认使用教材布局，避免无必要折弯。不能为了排得整齐而改接端子、颠倒表的极性或修正题目故意设置的错误接法。新建纯电路优先 `layout:"circuit"`；用户明确要求保留位置、研究原图故障或修改手工场景时保留位置并说明理由。先查能力，支持时调用 `circuit.inspect`，有问题时用 `circuit.layout` 整理或按报告局部调整，再截图实际查看。旧应用没有这两个命令时使用已支持的规格布局/坐标修改，不编造调用，也不宣称具备新版自动验收。

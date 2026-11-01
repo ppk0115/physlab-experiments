@@ -36,7 +36,7 @@
 
 端点 a/b 可简写为对象 ID（中心），也可给局部挂点或世界坐标。新 rope/rod 未给 length 时取实际端距；弹簧原长不会自动等于端距。铰链 b 简写为对象 ID 时，应用计算与 a 重合的局部挂点，不移动杆件。
 
-滑轮 mount 采用相同挂点格式。动滑轮必须明确安装到有质量物体，轮本身无质量。routed-rope 使用 a/b 与有序 via:[{pulley:"P",side:-1}]；新绳未给 length 时采用真实切线和包角总长。交叉不建立连接。
+滑轮 mount 采用相同挂点格式。新增动滑轮只创建滑轮，不自动添加砝码、载荷或质量；未安装草稿可摆放和保存，完成运行规格时必须明确安装到题目中的已有物体，轮本身无质量。scene 中 mount=null 表示未安装，位置采用 transform；已安装后的世界位置由 mount 计算，不能把局部偏移或陈旧的 transform 当成世界坐标。界面分别显示滑轮中心场景坐标与安装偏移。routed-rope 使用 a/b 与有序 via:[{pulley:"P",side:-1}]；新绳未给 length 时采用真实切线和包角总长。交叉不建立连接。
 
 轨道使用 joins:[{from:["坡道",1],to:["水平段",0],align:false}]。0 是起点，1 是终点；应用移动 to 轨道使端点重合。align:true 还会对齐切线；题目有折角时用 false。先拼接再计算 placeOn。
 
@@ -93,3 +93,11 @@ scene.apply 的 mode:"patch" 以当前初始场景为基础；已有 ID 可省�
 `model.analyze` / `scene.validate` 的问题包含具体器材ID；缺失质点连接、超线长及不支持组合可分别定位。启动后物体静止时先检查实际g和受力；g=0不是引擎停止。没有固定端本身不构成自由落体错误。
 
 细线器材参数 `length` 是不变的设定线长；运行/历史测量中的 `length` 是两端距离，`slack` 是余长。界面分别标明，不应把端距增加误报为线被拉伸。
+
+## 小球碰撞与能量
+
+先检查 `pointHeadOnCollisions` / `finiteSphereCollisions` / `collisionEnergyReadings`。普通运动物体默认教材质点，`textbook.pointCollisions` 可设 `head-on`（默认）或 `disabled`；相遇时对心碰撞的轴为碰前相对运动方向，同轨时沿轨道。显示半径不决定相遇时间，球面视觉相交不表示质点已碰撞。不能为了球面接触擅自改变题目采用的质点模型。
+
+题设需要半径或斜碰接触几何时，球体显式设置 `mechanics:{model:"finite-translation",physicalSize:{radius:0.25}}`。`params.radius` 仍为展示半径，二者独立。当前有限球体支持自由运动、光滑球间及光滑墙面碰撞，不计自转；轨道、弹簧、绳杆等耦合及同时多体碰撞仍需 `model.analyze`，不能宣称全部支持。
+
+`world.ballRestitution` 是物体间恢复系数，墙使用独立 restitution。检查实际事件的 before/after、collision.normal、impulse、energyLoss 和系统 collisionLoss；e=1 时验证总动能，e<1 时验证“动能减少＝碰撞耗散”，同时核对动量。单个物体能获得或失去动能，不能把它的动能变化误报为整个系统耗散。碰撞耗散与 frictionHeat 分开，瞬时冲量不能除以显示帧时长冒充瞬时力。
