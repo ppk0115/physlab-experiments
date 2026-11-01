@@ -6,6 +6,11 @@
     2
   ],
   "capabilities": {
+    "coupledMechanics": true,
+    "tangentTrackEntry": true,
+    "trackNetworks": true,
+    "constrainedPointCollisions": true,
+    "mixedForceModels": true,
     "unmountedPulleyDrafts": true,
     "pointHeadOnCollisions": true,
     "finiteSphereCollisions": true,
