@@ -44,7 +44,7 @@
 
 ```json
 {
- "version":1,"title":"串联测量","gravity":0,
+ "version":1,"title":"串联测量",
  "objects":[
   {"id":"E","type":"battery","params":{"voltage":9}},
   {"id":"S","type":"switch","params":{"closed":true}},
@@ -59,7 +59,7 @@
 
 series 自动生成导线：电源 a（正端）向外供电，普通元件按 a→b 接入。反接电源或特殊分支用明确的 wires 端子对。每个器件有 a/b 两端；电压为 Va−Vb，电流正值为 a→b，电源供电时自身电流可为负，不能把负数误判为失败。
 
-纯电路新实验默认整理布局；layout:"preserve" 保留位置，layout:"circuit" 显式整理。交叉不接通，必须共用端子引用。通过 series 加入电流表，通过 wires 将电压表并联到待测两端。
+纯电路新实验默认按接线结构整理布局（详细规则见[circuit-layout.md](circuit-layout.md)）；layout:"preserve" 保留位置，layout:"circuit" 显式整理。交叉不接通，必须共用端子引用。通过 series 加入电流表，通过 wires 将电压表并联到待测两端。
 
 ## 其他领域
 
@@ -85,3 +85,11 @@ scene.apply 的 mode:"patch" 以当前初始场景为基础；已有 ID 可省�
 ```json
 {"version":1,"gravity":0,"objects":[{"id":"ball","type":"ball","at":[-2,0],"velocity":[4,0]},{"id":"wall","type":"wall","at":[0,0],"angle":90,"params":{"length":4,"restitution":1,"friction":0}}]}
 ```
+
+## 细线编辑与错误定位
+
+界面会限制拖动和数值定位产生的细线端距，但不更改保存的线长；同组两端一同移动时保留内部距离，外接细线仍限制整个组的移动。弹簧不受此限制。通过Agent给定的非法初态仍需按原始条件拒绝，不自动移动题目物体。
+
+`model.analyze` / `scene.validate` 的问题包含具体器材ID；缺失质点连接、超线长及不支持组合可分别定位。启动后物体静止时先检查实际g和受力；g=0不是引擎停止。没有固定端本身不构成自由落体错误。
+
+细线器材参数 `length` 是不变的设定线长；运行/历史测量中的 `length` 是两端距离，`slack` 是余长。界面分别标明，不应把端距增加误报为线被拉伸。

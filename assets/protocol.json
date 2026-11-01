@@ -6,6 +6,11 @@
     2
   ],
   "capabilities": {
+    "validationHighlights": true,
+    "constraintEditingLimits": true,
+    "boxSelection": true,
+    "textbookCircuitLayout": true,
+    "circuitGeometryInspection": true,
     "accelerationReadings": true,
     "textbookPointModels": true,
     "formalTrigonometry": true,
@@ -4394,6 +4399,26 @@
           "object",
           "closed"
         ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "circuit.layout",
+      "description": "按教材串联、并联及可归约混联结构整理电路并检查布线；保留端子、参数及开关状态，可撤销，仅编辑状态可用。复杂网络返回通用布局提示。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "circuit.inspect",
+      "description": "只读检查导线穿器材、不同节点重合及可直接消除的折弯；返回几何问题与指标，不能代替截图检查。",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
         "additionalProperties": false
       }
     },

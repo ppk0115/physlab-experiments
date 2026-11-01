@@ -40,3 +40,19 @@ INVALID_SPEC / INVALID_ARGUMENTS 看 details 字段路径；UNKNOWN_PARAMETER / 
 - 主实验仍采用固定1/240s步长，独立求值最后可用短步抵达目标时间；碰撞跳变处找不到的中间值不能报告成解。
 
 教材开发版新增连续加速度通道：运动物体的 `acceleration` 为加速度大小，`ax` / `ay` 为分量，单位均为 `m/s²`。初始状态、运行、历史和 `analysis.query` 共用求解方程；先检查 `capabilities.accelerationReadings`。事件时刻用 phase 区分前后单侧加速度，碰撞和绳子收紧的瞬时冲量不能换算为有限瞬时加速度。不要用相邻绘图采样速度之差计算它，也不要把速率不变误认为加速度为零。
+
+## 教材电路布局与几何检查
+
+先检查 `capabilities.textbookCircuitLayout` / `circuitGeometryInspection`，旧应用没有这些能力时不能调用以下命令。
+
+- `circuit.layout {}`：编辑状态下，按明确端子关系整理单电源串联、并联和可归约混联；复杂网络返回通用布局提示。可撤销，保留电气参数和开合状态。
+- `circuit.inspect {}`：只读，返回 `ok`、`issues`、`metrics`、`screenshotReviewRequired:true`，不改变实验或主时钟。检查器材重叠、导线穿器材、不同节点导线重合，以及满足端子引出要求的可直接减少折弯路径。
+- 结构/物理校验、几何检查和截图复核分别进行；几何通过不能替代电路求解，不能替代标签和题图含义的人工视觉检查。
+
+## 启动诊断与编辑约束
+
+`validationHighlights` 表示启动失败会保存具体 `issues[].objects` 并在三维场景显示红框；界面「定位问题」聚焦这些器材。模型分析和校验只读返回拟建规格的问题，不会在当前无关实验上画红框。`simulation.run` 失败的 `details.issues` 可用于Agent定位，按实际协议版本/能力读取。
+
+`constraintEditingLimits` 表示界面拖动和坐标输入限制细线端距，允许松弛，不修改保存的线长；过短的新线长会拒绝且显示实际保留值。正式Agent输入仍需按题设通过校验，不会被界面自动修正。`boxSelection` 为界面整体移动/删除能力；无新增框选命令，不要编造工具。
+
+物体不动时先检查场景重力、初速度、受力和时间。纯电路无需设置g=0；当前实验已明确g=0时不能因预期下落而擅改题设，需说明原因。自由落体不要求固定点；只有所选约束模型的缺失/冲突才报错。
